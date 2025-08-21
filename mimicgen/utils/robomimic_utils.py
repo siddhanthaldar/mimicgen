@@ -143,7 +143,10 @@ def make_dataset_video(
         playback_args.render_image_names = ["agentview"]
     playback_args.render_depth_names = None
     playback_args.first = False
-
+    ############# TODO: Hacks to make modified robomimic work
+    playback_args.absolute = False
+    playback_args.intervention = False
+    #############
     try:
         playback_dataset(playback_args)
     except Exception as e:

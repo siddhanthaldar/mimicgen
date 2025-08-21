@@ -165,9 +165,20 @@ def parse_source_dataset(
 
     datagen_infos = []
     subtask_indices = []
+    mod_demo_keys = []
     for ind in tqdm(range(len(demo_keys))):
         ep = demo_keys[ind]
         ep_grp = f["data/{}".format(ep)]
+
+        # filter out demos where any of the subtask term signals is all zeros
+        is_valid = True
+        for key in ep_grp["datagen_info"]["subtask_term_signals"].keys():
+            if np.all(ep_grp["datagen_info"]["subtask_term_signals"][key][()] == 0):
+                is_valid = False
+                break
+        if not is_valid:
+            continue
+        mod_demo_keys.append(ep)
 
         # extract datagen info
         ep_datagen_info = ep_grp["datagen_info"]
@@ -218,7 +229,7 @@ def parse_source_dataset(
     # convert list of lists to array for easy indexing
     subtask_indices = np.array(subtask_indices)
 
-    return datagen_infos, subtask_indices, subtask_term_signals, subtask_term_offset_ranges
+    return datagen_infos, subtask_indices, subtask_term_signals, subtask_term_offset_ranges, mod_demo_keys
 
 
 def write_demo_to_hdf5(
